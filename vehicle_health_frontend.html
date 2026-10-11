@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AutoPulse | Vehicle Health Prediction</title>
+<style>
+:root{--bg:#f3f6fa;--panel:#fff;--ink:#172337;--muted:#64748b;--line:#e2e8f0;--navy:#10233f;--teal:#0d9488;--teal2:#ccfbf1;--red:#dc2626;--amber:#d97706}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,Segoe UI,Arial,sans-serif}
+header{background:var(--navy);color:#fff;padding:20px max(22px,calc((100% - 1180px)/2));display:flex;align-items:center;justify-content:space-between;gap:20px}
+.brand{display:flex;align-items:center;gap:12px;font-size:20px;font-weight:800;letter-spacing:.2px}.logo{height:42px;width:42px;border-radius:12px;background:#0d9488;display:grid;place-items:center;font-size:23px}
+header small{display:block;color:#b9c8da;font-weight:400;font-size:12px;margin-top:3px}.pill{border:1px solid #42607e;color:#dbeafe;border-radius:99px;padding:8px 12px;font-size:12px}
+main{max-width:1180px;margin:30px auto;padding:0 22px 45px}.intro{display:flex;justify-content:space-between;align-items:end;gap:20px;margin-bottom:22px}.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:1.4px;color:var(--teal);font-weight:800}.intro h1{font-size:clamp(25px,4vw,34px);margin:8px 0}.intro p{color:var(--muted);margin:0;line-height:1.6;max-width:720px}.grid{display:grid;grid-template-columns:1.05fr .95fr;gap:20px}.card{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:23px;box-shadow:0 5px 18px #10233f08}.card h2{font-size:17px;margin:0 0 6px}.sub{font-size:13px;color:var(--muted);line-height:1.5;margin:0 0 18px}.drop{border:1.5px dashed #9fb2c8;border-radius:14px;background:#f8fbff;padding:30px 18px;text-align:center;transition:.2s}.drop.drag{border-color:var(--teal);background:#f0fdfa}.upload-icon{font-size:32px;margin-bottom:10px}.drop strong{display:block;margin-bottom:7px}.drop p{color:var(--muted);font-size:13px;margin:0 0 15px}.button{border:0;border-radius:10px;padding:12px 16px;font-weight:750;cursor:pointer;font-size:14px;transition:.15s}.primary{background:var(--teal);color:#fff}.primary:hover{background:#0f766e}.secondary{background:#eaf0f6;color:var(--ink)}.button:disabled{opacity:.45;cursor:not-allowed}.file-info{display:none;align-items:center;justify-content:space-between;gap:12px;background:#f0fdfa;border:1px solid #99f6e4;border-radius:10px;padding:12px;margin-top:14px;font-size:13px}.file-name{font-weight:700;overflow-wrap:anywhere}.file-meta{color:var(--muted);font-size:12px;margin-top:4px}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px}.field label{font-size:12px;font-weight:700;display:block;margin-bottom:7px}.field input,.field select{width:100%;border:1px solid var(--line);border-radius:9px;padding:11px;background:#fff;color:var(--ink);font-size:14px}.full{width:100%;margin-top:18px}.hint{font-size:12px;color:var(--muted);line-height:1.5;margin-top:12px}.statusline{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:12px;margin-top:17px}.dot{width:8px;height:8px;border-radius:50%;background:#94a3b8}.dot.ready{background:var(--teal)}.results-empty{height:100%;min-height:320px;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;color:var(--muted);padding:22px}.results-empty .symbol{font-size:42px;margin-bottom:10px}.results-empty strong{color:var(--ink);font-size:16px;margin-bottom:8px}.results{display:none}.result-top{display:flex;justify-content:space-between;align-items:center;gap:12px}.status-badge{border-radius:99px;padding:7px 11px;font-size:12px;font-weight:800;background:#e2e8f0;color:#334155}.status-badge.healthy{background:#dcfce7;color:#166534}.status-badge.degrading{background:#fef3c7;color:#92400e}.status-badge.critical{background:#fee2e2;color:#991b1b}.vhi-row{display:flex;align-items:center;gap:20px;margin:25px 0}.gauge{--pct:0;width:112px;height:112px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--teal) calc(var(--pct)*1%),#e8eef4 0)}.gauge-inner{width:86px;height:86px;background:white;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center}.gauge-inner strong{font-size:28px}.gauge-inner span{font-size:10px;color:var(--muted)}.vhi-copy strong{font-size:16px}.vhi-copy p{font-size:13px;color:var(--muted);line-height:1.5}.metrics{display:grid;grid-template-columns:1fr 1fr;gap:12px}.metric{border:1px solid var(--line);border-radius:12px;padding:14px}.metric span{display:block;color:var(--muted);font-size:12px;margin-bottom:7px}.metric strong{font-size:19px}.section-label{font-size:12px;text-transform:uppercase;letter-spacing:1px;font-weight:800;color:var(--muted);margin:23px 0 10px}.fault-list{padding-left:19px;margin:0;font-size:13px;line-height:1.8}.result-actions{display:flex;gap:10px;margin-top:20px;flex-wrap:wrap}.notice{display:none;border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.5;margin-top:14px}.notice.error{display:block;background:#fef2f2;color:#991b1b;border:1px solid #fecaca}.notice.info{display:block;background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe}.foot{color:var(--muted);font-size:11px;line-height:1.6;margin-top:20px}footer{text-align:center;color:#718096;font-size:12px;padding:0 20px 25px}
+@media(max-width:800px){.grid{grid-template-columns:1fr}.intro{align-items:start;flex-direction:column}header{padding:16px 20px}.pill{display:none}.results-empty{min-height:220px}}@media(max-width:420px){.form-row{grid-template-columns:1fr}.card{padding:17px}.vhi-row{align-items:flex-start}}
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><div class="logo">⌁</div><div>AutoPulse<small>Vehicle Intelligence · Health Monitoring</small></div></div>
+  <div class="pill">TELEMATICS + CAN DATA</div>
+</header>
+<main>
+  <section class="intro">
+    <div><div class="eyebrow">Predictive vehicle diagnostics</div><h1>Vehicle Health Prediction</h1><p>Upload vehicle telemetry or CAN data to assess vehicle condition, identify potential anomalies, and generate a prediction report.</p></div>
+  </section>
+  <div class="grid">
+    <section class="card">
+      <h2>Upload vehicle data</h2>
+      <p class="sub">Choose a supported data file. Your backend model will process its contents to produce the prediction.</p>
+      <div class="drop" id="drop">
+        <div class="upload-icon">⇧</div>
+        <strong>Drag and drop your data file here</strong>
+        <p>or browse from your computer</p>
+        <button class="button secondary" id="browse" type="button">Choose file</button>
+        <input id="fileInput" type="file" accept=".json,.csv,.xlsx,.xls" hidden>
+        <div class="hint">Supported formats: JSON, CSV, XLSX, XLS · Maximum size: 20 MB</div>
+      </div>
+      <div class="file-info" id="fileInfo">
+        <div><div class="file-name" id="fileName"></div><div class="file-meta" id="fileMeta"></div></div>
+        <button class="button secondary" id="remove" type="button" aria-label="Remove file">Remove</button>
+      </div>
+      <div class="form-row">
+        <div class="field"><label for="source">Data source</label><select id="source"><option value="auto">Auto-detect</option><option value="telematics">Telematics</option><option value="can">CAN data</option><option value="combined">Combined testing + telematics</option></select></div>
+        <div class="field"><label for="vehicleId">Vehicle ID (optional)</label><input id="vehicleId" type="text" placeholder="e.g. MAT561004P0A00021"></div>
+      </div>
+      <button class="button primary full" id="predict" type="button" disabled>Predict Vehicle Health →</button>
+      <div class="statusline"><span class="dot" id="dot"></span><span id="statusText">Select a file to begin</span></div>
+      <div id="notice" class="notice"></div>
+      <p class="foot">Privacy note: the file is sent to the configured prediction API. Do not upload confidential or personally identifiable information unless your deployment is approved for it.</p>
+    </section>
+    <section class="card">
+      <div class="result-top"><div><h2>Prediction summary</h2><p class="sub" style="margin:6px 0 0">Model output for the uploaded vehicle data</p></div><span id="badge" class="status-badge">Awaiting data</span></div>
+      <div class="results-empty" id="empty"><div class="symbol">◉</div><strong>Your results will appear here</strong><span>Upload a file and run the prediction to view the health index and detected issues.</span></div>
+      <div class="results" id="results">
+        <div class="vhi-row">
+          <div class="gauge" id="gauge"><div class="gauge-inner"><strong id="vhi">—</strong><span>HEALTH INDEX</span></div></div>
+          <div class="vhi-copy"><strong id="healthTitle">—</strong><p id="healthDescription">Health interpretation will appear here.</p></div>
+        </div>
+        <div class="metrics">
+          <div class="metric"><span>Records processed</span><strong id="records">—</strong></div>
+          <div class="metric"><span>Potential fault indicators</span><strong id="faultCount">—</strong></div>
+        </div>
+        <div class="section-label">Detected indicators / recommendations</div>
+        <ul class="fault-list" id="faults"><li>No result available.</li></ul>
+        <div class="result-actions"><button class="button primary" id="download" type="button">Download report</button><button class="button secondary" id="reset" type="button">New prediction</button></div>
+        <p class="foot">This is a decision-support estimate, not a substitute for professional vehicle inspection. Confirm critical alerts using validated diagnostics and vehicle-specific thresholds.</p>
+      </div>
+    </section>
+  </div>
+</main>
+<footer>AutoPulse · Vehicle Health Prediction Prototype</footer>
+<script>
+/*
+  BACKEND CONTRACT:
+  POST multipart/form-data to /predict
+  form fields: file, source, vehicle_id
+  Example JSON response:
+  {
+    "health_status": "Healthy" | "Degrading" | "Critical",
+    "vhi": 86.4,
+    "records_processed": 250,
+    "fault_indicators": ["Low backup battery voltage", "Unusual engine speed"],
+    "summary": "Vehicle appears healthy based on the uploaded records."
+  }
+  Configure API_BASE below for your FastAPI server.
+*/
+const API_BASE = "http://127.0.0.1:8000";
+const MAX_BYTES = 20 * 1024 * 1024;
+const fileInput = document.getElementById("fileInput");
+const drop = document.getElementById("drop");
+const predictBtn = document.getElementById("predict");
+let selectedFile = null;
+let lastReport = null;
+
+document.getElementById("browse").addEventListener("click", () => fileInput.click());
+fileInput.addEventListener("change", e => chooseFile(e.target.files[0]));
+document.getElementById("remove").addEventListener("click", clearFile);
+document.getElementById("reset").addEventListener("click", resetAll);
+predictBtn.addEventListener("click", runPrediction);
+document.getElementById("download").addEventListener("click", downloadReport);
+
+["dragenter","dragover"].forEach(evt => drop.addEventListener(evt, e => {e.preventDefault();drop.classList.add("drag")}));
+["dragleave","drop"].forEach(evt => drop.addEventListener(evt, e => {e.preventDefault();drop.classList.remove("drag")}));
+drop.addEventListener("drop", e => chooseFile(e.dataTransfer.files[0]));
+
+function showNotice(message, type="error") {
+  const n=document.getElementById("notice"); n.className="notice "+type; n.textContent=message;
+}
+function hideNotice(){const n=document.getElementById("notice");n.className="notice";n.textContent=""}
+function setStatus(text, ready=false){
+  document.getElementById("statusText").textContent=text;
+  document.getElementById("dot").className=ready?"dot ready":"dot";
+}
+function chooseFile(file){
+  hideNotice();
+  if(!file)return;
+  const allowed=["json","csv","xlsx","xls"];
+  const ext=file.name.split(".").pop().toLowerCase();
+  if(!allowed.includes(ext)){showNotice("Unsupported format. Please select a JSON, CSV, XLSX, or XLS file.");return}
+  if(file.size>MAX_BYTES){showNotice("The file exceeds the 20 MB limit. Please upload a smaller file.");return}
+  selectedFile=file;
+  document.getElementById("fileName").textContent=file.name;
+  document.getElementById("fileMeta").textContent=`${ext.toUpperCase()} · ${(file.size/1024).toFixed(1)} KB`;
+  document.getElementById("fileInfo").style.display="flex";
+  predictBtn.disabled=false;
+  setStatus("File ready for prediction",true);
+}
+function clearFile(){
+  selectedFile=null;fileInput.value="";
+  document.getElementById("fileInfo").style.display="none";
+  predictBtn.disabled=true;setStatus("Select a file to begin");hideNotice();
+}
+async function runPrediction(){
+  if(!selectedFile)return;
+  hideNotice();predictBtn.disabled=true;predictBtn.textContent="Processing…";
+  setStatus("Uploading file and waiting for model response");
+  const form=new FormData();
+  form.append("file",selectedFile);
+  form.append("source",document.getElementById("source").value);
+  form.append("vehicle_id",document.getElementById("vehicleId").value.trim());
+  try{
+    const response=await fetch(`${API_BASE}/predict`,{method:"POST",body:form});
+    const body=await response.json().catch(()=>({detail:"The server returned an unreadable response."}));
+    if(!response.ok)throw new Error(body.detail||body.error||`Prediction failed (HTTP ${response.status}).`);
+    renderResults(body);
+    setStatus("Prediction completed",true);
+  }catch(err){
+    showNotice(`Could not obtain a prediction: ${err.message}. Confirm that the FastAPI backend is running at ${API_BASE} and that its /predict endpoint is available.`);
+    setStatus("Prediction not completed");
+  }finally{
+    predictBtn.disabled=!selectedFile;
+    predictBtn.textContent="Predict Vehicle Health →";
+  }
+}
+function renderResults(data){
+  const status=String(data.health_status||data.predicted_health||"Unknown");
+  const vhi=Number(data.vhi ?? data.vehicle_health_index);
+  const validVhi=Number.isFinite(vhi)?Math.max(0,Math.min(100,vhi)):null;
+  const faults=Array.isArray(data.fault_indicators)?data.fault_indicators:
+    Array.isArray(data.faults)?data.faults:[];
+  lastReport={...data,health_status:status,vhi:validVhi,fault_indicators:faults,uploaded_file:selectedFile?.name,vehicle_id:document.getElementById("vehicleId").value.trim(),generated_at:new Date().toISOString()};
+  document.getElementById("empty").style.display="none";
+  document.getElementById("results").style.display="block";
+  const badge=document.getElementById("badge");badge.textContent=status;badge.className="status-badge";
+  const low=status.toLowerCase();
+  if(low.includes("healthy")||low.includes("normal"))badge.classList.add("healthy");
+  else if(low.includes("degrad")||low.includes("attention")||low.includes("warning"))badge.classList.add("degrading");
+  else if(low.includes("critical")||low.includes("fault")||low.includes("high risk"))badge.classList.add("critical");
+  document.getElementById("vhi").textContent=validVhi===null?"N/A":validVhi.toFixed(1);
+  document.getElementById("gauge").style.setProperty("--pct",validVhi===null?0:validVhi);
+  document.getElementById("healthTitle").textContent=status;
+  document.getElementById("healthDescription").textContent=data.summary||"Interpret the result using the model's validated vehicle-specific thresholds.";
+  document.getElementById("records").textContent=data.records_processed??data.record_count??"N/A";
+  document.getElementById("faultCount").textContent=faults.length;
+  const list=document.getElementById("faults");list.replaceChildren();
+  if(!faults.length){const li=document.createElement("li");li.textContent="No fault indicators were returned by the model.";list.appendChild(li)}
+  else faults.forEach(f=>{const li=document.createElement("li");li.textContent=typeof f==="string"?f:JSON.stringify(f);list.appendChild(li)});
+}
+function downloadReport(){
+  if(!lastReport)return;
+  const blob=new Blob([JSON.stringify(lastReport,null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);const a=document.createElement("a");
+  a.href=url;a.download="vehicle_health_prediction_report.json";a.click();URL.revokeObjectURL(url);
+}
+function resetAll(){
+  clearFile();lastReport=null;
+  document.getElementById("results").style.display="none";
+  document.getElementById("empty").style.display="flex";
+  document.getElementById("badge").textContent="Awaiting data";
+  document.getElementById("badge").className="status-badge";
+}
+</script>
+</body>
+</html>
